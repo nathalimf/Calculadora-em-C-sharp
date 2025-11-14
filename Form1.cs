@@ -13,6 +13,7 @@ namespace Calculadora
             Multiplicacao,
             Divisao
         }
+
         public Form1()
         {
             InitializeComponent();
@@ -23,68 +24,43 @@ namespace Calculadora
 
         }
 
-        private void btnZero_Click(object sender, EventArgs e)
-        {
-            txtResultado.Text += "0";
-        }
-
-        private void btnUm_Click(object sender, EventArgs e)
-        {
-            txtResultado.Text += "1";
-        }
-
-        private void btnDois_Click(object sender, EventArgs e)
-        {
-            txtResultado.Text += "2";
-        }
-
-        private void btnTres_Click(object sender, EventArgs e)
-        {
-            txtResultado.Text += "3";
-        }
-
-        private void btnQuatro_Click(object sender, EventArgs e)
-        {
-            txtResultado.Text += "4";
-        }
-
-        private void btnCinco_Click(object sender, EventArgs e)
-        {
-            txtResultado.Text += "5";
-        }
-
-        private void btnSeis_Click(object sender, EventArgs e)
-        {
-            txtResultado.Text += "6";
-        }
-
-        private void btnSete_Click(object sender, EventArgs e)
-        {
-            txtResultado.Text += "7";
-        }
-
-        private void btnOito_Click(object sender, EventArgs e)
-        {
-            txtResultado.Text += "8";
-        }
-
-        private void btnNove_Click(object sender, EventArgs e)
-        {
-            txtResultado.Text += "9";
-        }
+        private void btnZero_Click(object sender, EventArgs e) => txtResultado.Text += "0";
+        private void btnUm_Click(object sender, EventArgs e) => txtResultado.Text += "1";
+        private void btnDois_Click(object sender, EventArgs e) => txtResultado.Text += "2";
+        private void btnTres_Click(object sender, EventArgs e) => txtResultado.Text += "3";
+        private void btnQuatro_Click(object sender, EventArgs e) => txtResultado.Text += "4";
+        private void btnCinco_Click(object sender, EventArgs e) => txtResultado.Text += "5";
+        private void btnSeis_Click(object sender, EventArgs e) => txtResultado.Text += "6";
+        private void btnSete_Click(object sender, EventArgs e) => txtResultado.Text += "7";
+        private void btnOito_Click(object sender, EventArgs e) => txtResultado.Text += "8";
+        private void btnNove_Click(object sender, EventArgs e) => txtResultado.Text += "9";
 
         private void btnAdd_Click(object sender, EventArgs e)
         {
             OperacaoSelecionada = Operacoes.Adicao;
-            Valor = Convert.ToDecimal(txtResultado.Text);
+            Valor = decimal.TryParse(txtResultado.Text, out decimal v) ? v : 0;
             txtResultado.Text = "";
             lblOperacao.Text = "+";
         }
 
         private void btnSub_Click(object sender, EventArgs e)
         {
+            if (string.IsNullOrEmpty(txtResultado.Text) || txtResultado.Text == "0")
+            {
+                if (txtResultado.Text.StartsWith("-"))
+                    txtResultado.Text = txtResultado.Text.TrimStart('-');
+                else
+                    txtResultado.Text = "-";
+                return;
+            }
+
+            if (txtResultado.Text == "-")
+            {
+                return;
+            }
+
             OperacaoSelecionada = Operacoes.Subtracao;
-            Valor = Convert.ToDecimal(txtResultado.Text);
+            Valor = decimal.TryParse(txtResultado.Text, out decimal vv) ? vv : 0;
             txtResultado.Text = "";
             lblOperacao.Text = "-";
         }
@@ -92,7 +68,7 @@ namespace Calculadora
         private void btnMulti_Click(object sender, EventArgs e)
         {
             OperacaoSelecionada = Operacoes.Multiplicacao;
-            Valor = Convert.ToDecimal(txtResultado.Text);
+            Valor = decimal.TryParse(txtResultado.Text, out decimal v) ? v : 0;
             txtResultado.Text = "";
             lblOperacao.Text = "X";
         }
@@ -100,31 +76,44 @@ namespace Calculadora
         private void btnDiv_Click(object sender, EventArgs e)
         {
             OperacaoSelecionada = Operacoes.Divisao;
-            Valor = Convert.ToDecimal(txtResultado.Text);
+            Valor = decimal.TryParse(txtResultado.Text, out decimal v) ? v : 0;
             txtResultado.Text = "";
             lblOperacao.Text = "/";
         }
 
         private void btnIgual_Click(object sender, EventArgs e)
         {
+            decimal segundoValor = decimal.TryParse(txtResultado.Text, out decimal v) ? v : 0;
+
             switch (OperacaoSelecionada)
             {
                 case Operacoes.Adicao:
-                    Resultado = Valor + Convert.ToDecimal(txtResultado.Text);
+                    Resultado = Valor + segundoValor;
                     break;
+
                 case Operacoes.Subtracao:
-                    Resultado = Valor - Convert.ToDecimal(txtResultado.Text);
+                    Resultado = Valor - segundoValor;
                     break;
+
                 case Operacoes.Multiplicacao:
-                    Resultado = Valor * Convert.ToDecimal(txtResultado.Text);
+                    Resultado = Valor * segundoValor;
                     break;
+
                 case Operacoes.Divisao:
-                    Resultado = Valor / Convert.ToDecimal(txtResultado.Text);
+                    if (segundoValor == 0)
+                    {
+                        MessageBox.Show("Erro: divisão por zero!");
+                        return;
+                    }
+                    Resultado = Valor / segundoValor;
                     break;
+
                 default:
+                    Resultado = segundoValor;
                     break;
             }
-            txtResultado.Text = Convert.ToString(Resultado);
+
+            txtResultado.Text = Resultado.ToString();
             lblOperacao.Text = "=";
         }
 
@@ -142,23 +131,23 @@ namespace Calculadora
 
         private void btnApaga_Click(object sender, EventArgs e)
         {
-            if (txtResultado.Text.Length > 0)
-            {
-                txtResultado.Text = txtResultado.Text.Substring(0, txtResultado.Text.Length - 1);
-            }
-            if (txtResultado.Text.Length == 0)
+            if (string.IsNullOrEmpty(txtResultado.Text))
+                return;
+
+            if (txtResultado.Text.Length == 1)
             {
                 txtResultado.Text = "";
+                return;
             }
+
+            txtResultado.Text = txtResultado.Text.Substring(0, txtResultado.Text.Length - 1);
         }
 
         private void btnCE_Click(object sender, EventArgs e)
         {
             txtResultado.Text = "0";
             if (lblOperacao.Text == "=")
-            {
                 lblOperacao.Text = "";
-            }
         }
     }
 }
